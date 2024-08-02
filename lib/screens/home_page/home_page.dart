@@ -39,9 +39,10 @@ class HomePage extends StatelessWidget {
                 ),
                 IconButton(
                   onPressed: () {},
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.send,
                     size: 30,
+                    color: Colors.grey.shade800,
                   ),
                 ),
               ],

@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 
+import 'appbar.dart';
+
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('ChatMate'),
-      ),
+      appBar: const HomeAppBar(),
+      drawer: const Drawer(),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(

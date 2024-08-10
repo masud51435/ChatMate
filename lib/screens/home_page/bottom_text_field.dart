@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../../controllers/chatmate_controller.dart';
 
 class BottomTextField extends StatelessWidget {
   const BottomTextField({
@@ -7,11 +10,13 @@ class BottomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ChatmateController controller = Get.put(ChatmateController());
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(
           child: TextFormField(
+            controller: controller.textController,
             maxLines: null,
             decoration: InputDecoration(
               hintText: 'Message ChatMate',
@@ -28,7 +33,10 @@ class BottomTextField extends StatelessWidget {
         ),
         const SizedBox(width: 5),
         IconButton.outlined(
-          onPressed: () {},
+          onPressed: () {
+            controller.callGeminiAiModal();
+            controller.textController.clear();
+          },
           icon: Icon(
             Icons.send,
             size: 30,

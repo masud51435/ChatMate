@@ -1,27 +1,59 @@
+import 'package:chatmate/api/api_key.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
+
+import '../common/message.dart';
 
 class ChatmateController extends GetxController {
   static ChatmateController get instance => Get.find();
 
-  final TextEditingController controller = TextEditingController();
+  final TextEditingController textController = TextEditingController();
+  final ScrollController scrollController = ScrollController();
 
-  final List<Message> messages = [
-    Message(text: 'Hello, how are you?', isUser: true),
-    Message(text: 'I\'m doing well, thank you!', isUser: false),
-    Message(text: 'How about you?', isUser: true),
-    Message(text: 'I\'m also doing well. What about you?', isUser: false),
-    Message(text: 'What is your name?', isUser: true),
-    Message(text: 'My name is gemini Ai, what is your name?', isUser: false),
-    // Add more messages as needed...
-  ];
-}
+  final RxList<dynamic> messages = [].obs;
 
-class Message {
-  Message({
-    required this.text,
-    required this.isUser,
-  });
-  final String text;
-  final bool isUser;
+// added scroller for automatically scrolling
+  void _scrollDown() {
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => scrollController.animateTo(
+        scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+      ),
+    );
+  }
+
+//added gemini functionality
+  callGeminiAiModal() async {
+    try {
+      if (textController.text.isNotEmpty) {
+        messages.add(Message(
+          text: textController.text.trim(),
+          isUser: true,
+        ));
+        _scrollDown();
+      }
+      final model = GenerativeModel(
+        model: 'gemini-1.5-flash',
+        apiKey: GEMINI_API_KEY,
+      );
+      final content = [Content.text(textController.text.trim())];
+      final response = await model.generateContent(content);
+      messages.add(
+        Message(
+          text: response.text!,
+          isUser: false,
+        ),
+      );
+      _scrollDown();
+    } catch (e) {
+      messages.add(
+        Message(
+          text: e.toString(),
+          isUser: false,
+        ),
+      );
+    }
+  }
 }

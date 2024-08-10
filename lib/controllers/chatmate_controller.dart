@@ -10,6 +10,7 @@ class ChatmateController extends GetxController {
 
   final TextEditingController textController = TextEditingController();
   final ScrollController scrollController = ScrollController();
+  RxBool isClear = true.obs;
 
   final RxList<dynamic> messages = [].obs;
 
@@ -28,12 +29,14 @@ class ChatmateController extends GetxController {
   callGeminiAiModal() async {
     try {
       if (textController.text.isNotEmpty) {
+        isClear.value = false;
         messages.add(Message(
           text: textController.text.trim(),
           isUser: true,
         ));
         _scrollDown();
       }
+      isClear.value = false;
       final model = GenerativeModel(
         model: 'gemini-1.5-flash',
         apiKey: GEMINI_API_KEY,

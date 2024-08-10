@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'appbar.dart';
 import 'bottom_text_field.dart';
 import 'chat_item.dart';
+import 'display_text.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -20,16 +21,18 @@ class HomePage extends StatelessWidget {
           children: [
             Obx(
               () => Expanded(
-                child: ListView.builder(
-                  itemCount: controller.messages.length,
-                  controller: controller.scrollController,
-                  itemBuilder: (BuildContext context, int index) {
-                    final message = controller.messages[index];
-                    return ChatItem(
-                      message: message,
-                    );
-                  },
-                ),
+                child: controller.isClear.value
+                    ? const DisplayText()
+                    : ListView.builder(
+                        itemCount: controller.messages.length,
+                        controller: controller.scrollController,
+                        itemBuilder: (BuildContext context, int index) {
+                          final message = controller.messages[index];
+                          return ChatItem(
+                            message: message,
+                          );
+                        },
+                      ),
               ),
             ),
             const BottomTextField(),

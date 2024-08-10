@@ -26,7 +26,7 @@ class HomePage extends StatelessWidget {
                 },
               ),
             ),
-            BottomTextField(),
+            const BottomTextField(),
           ],
         ),
       ),

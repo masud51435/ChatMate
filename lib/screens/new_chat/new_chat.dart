@@ -29,7 +29,6 @@ class NewChatPage extends StatelessWidget {
                         controller: controller.scrollController,
                         itemBuilder: (BuildContext context, int index) {
                           final message = controller.messages[index];
-                          print(message.text.toString());
                           return ChatItem(
                             message: message,
                           );
@@ -63,7 +62,7 @@ class NewChatPage extends StatelessWidget {
                 IconButton.outlined(
                   onPressed: () {
                     controller.callGeminiAiModal();
-                     controller.textController.clear();
+                    controller.textController.clear();
                   },
                   icon: Icon(
                     Icons.send,

@@ -5,8 +5,8 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 
 import '../common/message.dart';
 
-class ChatmateController extends GetxController {
-  static ChatmateController get instance => Get.find();
+class scroll extends GetxController {
+  static scroll get instance => Get.find();
 
   final TextEditingController textController = TextEditingController();
   final ScrollController scrollController = ScrollController();
@@ -15,7 +15,7 @@ class ChatmateController extends GetxController {
   RxBool isLoading = false.obs;
   final RxList<dynamic> messages = [].obs;
 
-// added scroller for automatically scrolling
+// added scroll for automatically scrolling
   void _scrollDown() {
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => scrollController.animateTo(
@@ -29,6 +29,7 @@ class ChatmateController extends GetxController {
 //added gemini functionality
   callGeminiAiModal() async {
     try {
+      //added user questions
       if (textController.text.isNotEmpty) {
         isClear.value = false;
         messages.add(Message(
@@ -40,7 +41,13 @@ class ChatmateController extends GetxController {
 
       //show loader
       isLoading.value = true;
-      messages.add(Message(text: 'loading...', isUser: false, isLoading: true));
+      messages.add(
+        Message(
+          text: 'loading...',
+          isUser: false,
+          isLoading: true,
+        ),
+      );
       _scrollDown();
 
       // added gemini functionality

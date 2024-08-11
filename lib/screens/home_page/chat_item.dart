@@ -51,7 +51,7 @@ class ChatItem extends StatelessWidget {
               child: message.isLoading
                   ? Center(
                       child: LoadingAnimationWidget.beat(
-                        color: Colors.lightBlue.shade200,
+                        color: Colors.blue.shade200,
                         size: 40,
                       ),
                     )

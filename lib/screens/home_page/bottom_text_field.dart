@@ -10,7 +10,7 @@ class BottomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ChatmateController controller = Get.put(ChatmateController());
+    final scroll controller = Get.put(scroll());
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [

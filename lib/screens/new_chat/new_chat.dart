@@ -11,8 +11,8 @@ class NewChatPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scroll controller = Get.put(
-      scroll(),
+    final ChatmateController controller = Get.put(
+      ChatmateController(),
       tag: UniqueKey().toString(),
     );
     return Scaffold(

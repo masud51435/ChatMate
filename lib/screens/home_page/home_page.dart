@@ -11,7 +11,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scroll controller = Get.put(scroll());
+    final ChatmateController controller = Get.put(ChatmateController());
     return Scaffold(
       appBar: const HomeAppBar(),
       drawer: const Drawer(),

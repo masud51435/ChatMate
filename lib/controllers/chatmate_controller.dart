@@ -5,8 +5,8 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 
 import '../common/message.dart';
 
-class scroll extends GetxController {
-  static scroll get instance => Get.find();
+class ChatmateController extends GetxController {
+  static ChatmateController get instance => Get.find();
 
   final TextEditingController textController = TextEditingController();
   final ScrollController scrollController = ScrollController();

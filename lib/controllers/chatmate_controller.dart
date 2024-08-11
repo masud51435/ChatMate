@@ -10,8 +10,9 @@ class ChatmateController extends GetxController {
 
   final TextEditingController textController = TextEditingController();
   final ScrollController scrollController = ScrollController();
-  RxBool isClear = true.obs;
 
+  RxBool isClear = true.obs;
+  RxBool isLoading = false.obs;
   final RxList<dynamic> messages = [].obs;
 
 // added scroller for automatically scrolling
@@ -36,13 +37,25 @@ class ChatmateController extends GetxController {
         ));
         _scrollDown();
       }
-      isClear.value = false;
+
+      //show loader
+      isLoading.value = true;
+      messages.add(Message(text: 'loading...', isUser: false, isLoading: true));
+      _scrollDown();
+
+      // added gemini functionality
       final model = GenerativeModel(
         model: 'gemini-1.5-flash',
         apiKey: GEMINI_API_KEY,
       );
       final content = [Content.text(textController.text.trim())];
       final response = await model.generateContent(content);
+
+      //remove loader
+      isLoading.value = false;
+      messages.removeLast();
+
+      //add gemini response to messages list
       messages.add(
         Message(
           text: response.text!,
@@ -51,6 +64,8 @@ class ChatmateController extends GetxController {
       );
       _scrollDown();
     } catch (e) {
+      isLoading.value = false;
+      messages.removeLast();
       messages.add(
         Message(
           text: e.toString(),

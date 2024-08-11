@@ -1,5 +1,6 @@
+import 'package:chatmate/screens/new_chat/new_chat.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:get/get.dart';
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   const HomeAppBar({
@@ -25,7 +26,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       actions: [
         IconButton(
-          onPressed: () {},
+          onPressed: () => Get.offAll(() => const NewChatPage()),
           icon: const Icon(
             Icons.open_in_new_outlined,
             size: 28,

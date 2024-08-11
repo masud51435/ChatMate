@@ -18,6 +18,7 @@ class BottomTextField extends StatelessWidget {
           child: TextFormField(
             controller: controller.textController,
             maxLines: null,
+            onTapOutside: (event)=> FocusManager.instance.primaryFocus!.unfocus(),
             decoration: InputDecoration(
               hintText: 'Message ChatMate',
               filled: true,

@@ -18,16 +18,20 @@ class ChatmateController extends GetxController {
 // added scroll for automatically scrolling
   void _scrollDown() {
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => scrollController.animateTo(
-        scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-      ),
+      (_) {
+        if (scrollController.hasClients) {
+          scrollController.animateTo(
+            scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+          );
+        }
+      },
     );
   }
 
-//added gemini functionality
-  callGeminiAiModal() async {
+//added gemini functionality with loading indicator
+  Future<void> callGeminiAiModal() async {
     try {
       //added user questions
       if (textController.text.isNotEmpty) {
@@ -48,9 +52,10 @@ class ChatmateController extends GetxController {
           isLoading: true,
         ),
       );
+
       _scrollDown();
 
-      // added gemini functionality
+      // added gemini AI responses
       final model = GenerativeModel(
         model: 'gemini-1.5-flash',
         apiKey: GEMINI_API_KEY,

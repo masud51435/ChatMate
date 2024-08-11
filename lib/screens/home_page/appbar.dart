@@ -26,7 +26,14 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       actions: [
         IconButton(
-          onPressed: () => Get.offAll(() => const NewChatPage()),
+          onPressed: () {
+            // Navigate to a new instance of NewChatPage and remove HomePage from the stack
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const NewChatPage()),
+              (route) => false,
+            );
+          },
           icon: const Icon(
             Icons.open_in_new_outlined,
             size: 28,

@@ -1,4 +1,3 @@
-
 import 'package:chatmate/screens/home_page/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

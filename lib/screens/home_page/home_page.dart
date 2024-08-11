@@ -35,7 +35,13 @@ class HomePage extends StatelessWidget {
                       ),
               ),
             ),
-            const BottomTextField(),
+            BottomTextField(
+              textEditingController: controller.textController,
+              onPressed: () {
+                controller.callGeminiAiModal();
+                controller.textController.clear();
+              },
+            ),
           ],
         ),
       ),

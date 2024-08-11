@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-
-import '../../controllers/chatmate_controller.dart';
-
 class BottomTextField extends StatelessWidget {
   const BottomTextField({
     super.key,
+    required this.textEditingController,
+    required this.onPressed,
   });
+
+  final TextEditingController textEditingController;
+  final void Function() onPressed;
 
   @override
   Widget build(BuildContext context) {
-    final ChatmateController controller = Get.put(ChatmateController());
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Expanded(
           child: TextFormField(
-            controller: controller.textController,
+            controller: textEditingController,
             maxLines: null,
-            onTapOutside: (event)=> FocusManager.instance.primaryFocus!.unfocus(),
+            onTapOutside: (event) =>
+                FocusManager.instance.primaryFocus!.unfocus(),
             decoration: InputDecoration(
               hintText: 'Message ChatMate',
               filled: true,
@@ -34,10 +35,7 @@ class BottomTextField extends StatelessWidget {
         ),
         const SizedBox(width: 5),
         IconButton.outlined(
-          onPressed: () {
-            controller.callGeminiAiModal();
-            controller.textController.clear();
-          },
+          onPressed: onPressed,
           icon: Icon(
             Icons.send,
             size: 30,

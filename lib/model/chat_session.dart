@@ -1,11 +1,11 @@
 import '../common/message.dart';
 
-class ChatSession {
+class ChatSessions {
   String title;
   DateTime createdAt;
   List<Message> messages;
 
-  ChatSession({
+  ChatSessions({
     required this.title,
     required this.createdAt,
     required this.messages,

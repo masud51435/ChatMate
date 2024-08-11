@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
 import '../common/message.dart';
+import '../model/chat_session.dart';
 
 class ChatmateController extends GetxController {
   static ChatmateController get instance => Get.find();
@@ -14,6 +15,12 @@ class ChatmateController extends GetxController {
   RxBool isClear = true.obs;
   RxBool isLoading = false.obs;
   final RxList<dynamic> messages = [].obs;
+
+  //store chat session
+  final RxList<ChatSessions> chatSessions = <ChatSessions>[].obs;
+
+  //current session index
+  RxInt currentSessionIndex = (-1).obs;
 
 // added scroll for automatically scrolling
   void _scrollDown() {
@@ -28,6 +35,30 @@ class ChatmateController extends GetxController {
         }
       },
     );
+  }
+
+  //start a new chat session
+  void startNewChat() {
+    if (messages.isNotEmpty) {
+      //save the current session before starting a new one
+      chatSessions.add(ChatSessions(
+        title: "Chat ${chatSessions.length + 1}",
+        messages: List<Message>.from(messages),
+        createdAt: DateTime.now(),
+      ));
+    }
+    // CLear current message and start fresh
+    messages.clear();
+    isClear.value = true;
+    currentSessionIndex.value = chatSessions.length;
+  }
+
+  //load a selected chat session
+  void loadChatSession(int index) {
+    final session = chatSessions[index];
+    messages.assignAll(session.messages);
+    currentSessionIndex.value = index;
+    isClear.value = false;
   }
 
 //added gemini functionality with loading indicator

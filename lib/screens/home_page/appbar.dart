@@ -30,8 +30,8 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         IconButton(
           onPressed: () {
-            Get.to(() => const NewChatPage());
             controller.startNewChat();
+            Get.offAll(() => const NewChatPage());
           },
           icon: const Icon(
             Icons.open_in_new_outlined,

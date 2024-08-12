@@ -1,6 +1,6 @@
-# chatmate
+# ChatMate
 
-A new Flutter project.
+ChatMate is an innovative Flutter-based chat application that integrates Google Cloud Vision API and Google's Gemini AI to provide a unique user experience. Users can not only chat with an AI but also upload images, which are analyzed to generate intelligent responses based on image content. This application demonstrates the fusion of AI-driven text and image processing capabilities within a seamless mobile experience.
 
 ## Getting Started
 

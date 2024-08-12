@@ -39,8 +39,10 @@ class HomePage extends StatelessWidget {
             BottomTextField(
               textEditingController: controller.textController,
               onPressed: () {
-                controller.callGeminiAiModal();
-                controller.textController.clear();
+                if (controller.textController.text.isNotEmpty) {
+                  controller.callGeminiAiModal();
+                  controller.textController.clear();
+                }
               },
             ),
           ],

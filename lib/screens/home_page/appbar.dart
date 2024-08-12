@@ -32,7 +32,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
             Get.offAll(() => const NewChatPage());
           },
           icon: const Icon(
-            Icons.open_in_new_outlined,
+            Icons.open_in_new,
             size: 28,
           ),
         ),

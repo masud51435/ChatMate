@@ -177,29 +177,6 @@ class ChatmateController extends GetxController {
     }
   }
 
-  //start a new chat session
-  void startNewChat() {
-    if (messages.isNotEmpty) {
-      //save the current session before starting a new one
-      chatSessions.add(ChatSessions(
-        title: "Chat ${chatSessions.length + 1}",
-        messages: List<Message>.from(messages),
-        createdAt: DateTime.now(),
-      ));
-    }
-    // CLear current message and start fresh
-    messages.clear();
-    isClear.value = true;
-    currentSessionIndex.value = chatSessions.length;
-  }
-
-  //load a selected chat session
-  void loadChatSession(int index) {
-    final session = chatSessions[index];
-    messages.assignAll(session.messages);
-    currentSessionIndex.value = index;
-    isClear.value = false;
-  }
 
 //added gemini functionality with loading indicator
   Future<void> callGeminiAiModal() async {

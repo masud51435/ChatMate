@@ -16,10 +16,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: Colors.blueGrey.shade100,
       leading: IconButton(
         onPressed: () => Scaffold.of(context).openDrawer(),
-        icon: const Icon(
-          Icons.dashboard_outlined,
-          size: 30,
-        ),
+        icon: Image.asset('assets/images/aichat.png'),
       ),
       centerTitle: true,
       title: const Text(

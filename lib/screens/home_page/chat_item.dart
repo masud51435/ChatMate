@@ -51,14 +51,30 @@ class ChatItem extends StatelessWidget {
                         : Colors.transparent,
               ),
               child: message.image != null
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(15),
-                      child: Image.file(
-                        message.image!,
-                        height: 200,
-                        width: 200,
-                        fit: BoxFit.cover,
-                      ),
+                  ? Column(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(15),
+                          child: Image.file(
+                            message.image!,
+                            height: 200,
+                            width: 200,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Text(
+                            message.text!,
+                            style: const TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        )
+                      ],
                     )
                   : message.isLoading
                       ? Center(

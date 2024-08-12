@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
-
+import 'dart:ui';
+import 'package:http/http.dart' as http;
 import 'package:chatmate/api/api_key.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -13,6 +15,8 @@ class ChatmateController extends GetxController {
   static ChatmateController get instance => Get.find();
 
   final TextEditingController textController = TextEditingController();
+  final TextEditingController imageDescriptionController =
+      TextEditingController();
   final ScrollController scrollController = ScrollController();
   final ImagePicker _picker = ImagePicker();
 
@@ -20,6 +24,9 @@ class ChatmateController extends GetxController {
   RxBool isLoading = false.obs;
   final RxList<dynamic> messages = [].obs;
   Rx<File?> selectedImage = Rx<File?>(null);
+  RxString descriptions = ''.obs;
+  RxString visionResponses = ''.obs;
+  RxString contentText = ''.obs;
 
   //store chat session
   final RxList<ChatSessions> chatSessions = <ChatSessions>[].obs;
@@ -46,21 +53,106 @@ class ChatmateController extends GetxController {
   Future<void> pickImage() async {
     final XFile? image = await _picker.pickImage(
       source: ImageSource.gallery,
-      maxHeight: 200,
-      maxWidth: 200,
     );
     if (image != null) {
       selectedImage.value = File(image.path);
       isClear.value = false;
 
+      //get user description for the image
+      final description = await Get.dialog(
+        AlertDialog(
+          title: const Text('Describe the image'),
+          content: TextFormField(
+            controller: imageDescriptionController,
+            decoration: InputDecoration(
+              hintText: 'Describe the image',
+              filled: true,
+              fillColor: Colors.grey.shade300,
+              border: const OutlineInputBorder(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(20),
+                ),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+          actions: [
+            OutlinedButton(
+              onPressed: () {
+                Get.back(
+                  result: imageDescriptionController.text,
+                );
+              },
+              child: const Text('Ok'),
+            ),
+          ],
+        ),
+      );
+
       //add the image in the message list
       messages.add(
         Message(
           image: selectedImage.value,
+          text: description,
           isUser: true,
         ),
       );
       _scrollDown();
+
+      //analyze the image using google vision API
+      final visionResponse =
+          await analyzeImageUsingVisionAPI(selectedImage.value!);
+
+      //set the value
+      visionResponses.value = visionResponse;
+      descriptions.value = description;
+      print('value is ${visionResponses.value}');
+      print('value is ${descriptions.value}');
+
+      //call the Gemini AI for response
+      await callGeminiAiModal();
+    }
+  }
+
+  Future<String> analyzeImageUsingVisionAPI(File image) async {
+    const String apiUrl =
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$GEMINI_IMAGE_API_KEY";
+
+    //convert the image to base64
+    List<int> imageBytes = File(image.path).readAsBytesSync();
+    final base64String = base64Encode(imageBytes);
+
+    //create the request payload
+    final Map<String, dynamic> requestBody = {
+      "contents": [
+        {
+          "parts": [
+            {"text": imageDescriptionController.text},
+            {
+              "inlineData": {
+                "mimeType": "image/jpeg",
+                "data": base64String,
+              }
+            }
+          ]
+        }
+      ]
+    };
+
+    //send the request to the google Vision API
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {"Content-Type": "application/json"},
+      body: json.encode(requestBody),
+    );
+
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body);
+      final labels =
+          jsonResponse["candidates"][0]["content"]["parts"][0]["text"];
+      return labels;
+    } else {
+      return 'Failed to analyze image';
     }
   }
 
@@ -99,6 +191,8 @@ class ChatmateController extends GetxController {
           isUser: true,
         ));
         _scrollDown();
+        // Reset contentText to handle only text input
+        contentText.value = textController.text.trim();
       }
 
       //show loader
@@ -112,12 +206,19 @@ class ChatmateController extends GetxController {
       );
       _scrollDown();
 
+      //combine user text and image description
+      if (descriptions.isNotEmpty && visionResponses.isNotEmpty) {
+        contentText.value = '${descriptions.value}, ${visionResponses.value}';
+      }
+
       // added gemini AI responses
       final model = GenerativeModel(
         model: 'gemini-1.5-flash',
         apiKey: GEMINI_API_KEY,
       );
-      final content = [Content.text(textController.text.trim())];
+      final content = [
+        Content.text(contentText.value),
+      ];
       final response = await model.generateContent(content);
 
       //remove loader
@@ -132,6 +233,10 @@ class ChatmateController extends GetxController {
         ),
       );
       _scrollDown();
+
+      // Clear the description and vision responses after using them
+      descriptions.value = '';
+      visionResponses.value = '';
     } catch (e) {
       isLoading.value = false;
       messages.removeLast();

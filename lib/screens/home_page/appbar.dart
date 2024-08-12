@@ -13,6 +13,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final ChatmateController controller = Get.find();
     return AppBar(
+      backgroundColor: Colors.blueGrey.shade100,
       leading: IconButton(
         onPressed: () => Scaffold.of(context).openDrawer(),
         icon: const Icon(

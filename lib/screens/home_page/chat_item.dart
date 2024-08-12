@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../../common/message.dart';
+import 'copy_text.dart';
 
 class ChatItem extends StatelessWidget {
   const ChatItem({
@@ -25,9 +26,14 @@ class ChatItem extends StatelessWidget {
           children: [
             message.isUser
                 ? const SizedBox.shrink()
-                : Image.asset(
-                    'assets/images/gemini.png',
-                    height: 35,
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Image.asset(
+                        'assets/images/gemini.png',
+                        height: 35,
+                      ),
+                    ],
                   ),
             const SizedBox(height: 10),
             Container(
@@ -83,11 +89,22 @@ class ChatItem extends StatelessWidget {
                             size: 40,
                           ),
                         )
-                      : Text(
-                          message.text ,
-                          style: TextStyle(
-                            color: message.isUser ? Colors.white : Colors.black,
-                          ),
+                      : Column(
+                          children: [
+                            Text(
+                              message.text,
+                              style: TextStyle(
+                                color: message.isUser
+                                    ? Colors.white
+                                    : Colors.black,
+                              ),
+                            ),
+                            message.isUser
+                                ? const SizedBox.shrink()
+                                : CopyText(
+                                    message: message,
+                                  ),
+                          ],
                         ),
             ),
           ],

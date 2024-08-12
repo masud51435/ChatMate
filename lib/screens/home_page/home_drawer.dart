@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:chatmate/controllers/chatmate_controller.dart';
 
+import '../new_chat/new_chat.dart';
+
 class HomeDrawer extends StatelessWidget {
   const HomeDrawer({super.key});
 
@@ -11,7 +13,7 @@ class HomeDrawer extends StatelessWidget {
 
     return Drawer(
       child: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(vertical: 20),
         children: [
           Column(
             children: [
@@ -28,6 +30,25 @@ class HomeDrawer extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 23,
                   fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 10),
+              const Divider(color: Colors.black),
+              ListTile(
+                onTap: () {
+                  controller.startNewChat();
+                  Get.back();
+                  Get.offAll(() => const NewChatPage());
+                },
+                leading: Image.asset(
+                  'assets/images/aichat.png',
+                  height: 20,
+                ),
+                title: const Text(
+                  'New Chat',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
               const SizedBox(height: 10),

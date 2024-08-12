@@ -14,6 +14,7 @@ import '../model/chat_session.dart';
 class ChatmateController extends GetxController {
   static ChatmateController get instance => Get.find();
 
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController textController = TextEditingController();
   final TextEditingController imageDescriptionController =
       TextEditingController();
@@ -60,57 +61,77 @@ class ChatmateController extends GetxController {
 
       //get user description for the image
       final description = await Get.dialog(
-        AlertDialog(
-          title: const Text('Describe the image'),
-          content: TextFormField(
-            controller: imageDescriptionController,
-            decoration: InputDecoration(
-              hintText: 'Describe the image',
-              filled: true,
-              fillColor: Colors.grey.shade300,
-              border: const OutlineInputBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(20),
+        Form(
+          key: _formKey,
+          child: AlertDialog(
+            title: const Text('Describe the image'),
+            content: TextFormField(
+              controller: imageDescriptionController,
+              decoration: InputDecoration(
+                hintText: 'What you want to know',
+                filled: true,
+                fillColor: Colors.grey.shade300,
+                border: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(20),
+                  ),
+                  borderSide: BorderSide.none,
                 ),
-                borderSide: BorderSide.none,
               ),
-            ),
-          ),
-          actions: [
-            OutlinedButton(
-              onPressed: () {
-                Get.back(
-                  result: imageDescriptionController.text,
-                );
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your description';
+                }
+                return null;
               },
-              child: const Text('Ok'),
             ),
-          ],
+            actions: [
+              OutlinedButton(
+                onPressed: () {
+                  Get.back();
+                },
+                child: const Text('Cancel'),
+              ),
+              OutlinedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    Get.back(
+                      result: imageDescriptionController.text,
+                    );
+                  }
+                  return;
+                },
+                child: const Text('Ok'),
+              ),
+            ],
+          ),
         ),
       );
 
-      //add the image in the message list
-      messages.add(
-        Message(
-          image: selectedImage.value,
-          text: description,
-          isUser: true,
-        ),
-      );
-      _scrollDown();
+      if (description != null) {
+        //add the image in the message list
+        messages.add(
+          Message(
+            image: selectedImage.value,
+            text: description,
+            isUser: true,
+          ),
+        );
+        _scrollDown();
 
-      //analyze the image using google vision API
-      final visionResponse =
-          await analyzeImageUsingVisionAPI(selectedImage.value!);
+        //analyze the image using google vision API
+        final visionResponse =
+            await analyzeImageUsingVisionAPI(selectedImage.value!);
 
-      //set the value
-      visionResponses.value = visionResponse;
-      descriptions.value = description;
-      print('value is ${visionResponses.value}');
-      print('value is ${descriptions.value}');
+        //set the value
+        visionResponses.value = visionResponse;
+        descriptions.value = description;
+        print('value is ${visionResponses.value}');
+        print('value is ${descriptions.value}');
 
-      //call the Gemini AI for response
-      await callGeminiAiModal();
+        //call the Gemini AI for response
+        await callGeminiAiModal();
+      }
     }
   }
 

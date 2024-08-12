@@ -68,7 +68,7 @@ class ChatItem extends StatelessWidget {
                             borderRadius: BorderRadius.circular(15),
                           ),
                           child: Text(
-                            message.text!,
+                            message.text,
                             style: const TextStyle(
                               color: Colors.white,
                             ),
@@ -84,7 +84,7 @@ class ChatItem extends StatelessWidget {
                           ),
                         )
                       : Text(
-                          message.text ?? '',
+                          message.text ,
                           style: TextStyle(
                             color: message.isUser ? Colors.white : Colors.black,
                           ),

@@ -29,12 +29,6 @@ class ChatmateController extends GetxController {
   RxString visionResponses = ''.obs;
   RxString contentText = ''.obs;
 
-  //store chat session
-  final RxList<ChatSessions> chatSessions = <ChatSessions>[].obs;
-
-  //current session index
-  RxInt currentSessionIndex = (-1).obs;
-
 // added scroll for automatically scrolling
   void _scrollDown() {
     WidgetsBinding.instance.addPostFrameCallback(
@@ -58,7 +52,6 @@ class ChatmateController extends GetxController {
     if (image != null) {
       selectedImage.value = File(image.path);
       isClear.value = false;
-
       //get user description for the image
       final description = await Get.dialog(
         Form(
@@ -126,8 +119,6 @@ class ChatmateController extends GetxController {
         //set the value
         visionResponses.value = visionResponse;
         descriptions.value = description;
-        print('value is ${visionResponses.value}');
-        print('value is ${descriptions.value}');
 
         //call the Gemini AI for response
         await callGeminiAiModal();
@@ -176,7 +167,6 @@ class ChatmateController extends GetxController {
       return 'Failed to analyze image';
     }
   }
-
 
 //added gemini functionality with loading indicator
   Future<void> callGeminiAiModal() async {
@@ -245,5 +235,35 @@ class ChatmateController extends GetxController {
         ),
       );
     }
+  }
+
+  /// Does not complete yet working on this section ///
+  //store chat session
+  final RxList<ChatSessions> chatSessions = <ChatSessions>[].obs;
+
+  //current session index
+  RxInt currentSessionIndex = (-1).obs;
+  //start a new chat session
+  void startNewChat() {
+    if (messages.isNotEmpty) {
+      //save the current session before starting a new one
+      chatSessions.add(ChatSessions(
+        title: "Chat ${chatSessions.length + 1}",
+        messages: List<Message>.from(messages),
+        createdAt: DateTime.now(),
+      ));
+    }
+    // CLear current message and start fresh
+    messages.clear();
+    isClear.value = true;
+    currentSessionIndex.value = chatSessions.length;
+  }
+
+  //load a selected chat session
+  void loadChatSession(int index) {
+    final session = chatSessions[index];
+    messages.assignAll(session.messages);
+    currentSessionIndex.value = index;
+    isClear.value = false;
   }
 }

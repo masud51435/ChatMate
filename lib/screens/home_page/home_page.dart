@@ -1,5 +1,5 @@
 import 'package:chatmate/controllers/chatmate_controller.dart';
-import 'package:chatmate/api/home_drawer.dart';
+import 'package:chatmate/screens/home_page/home_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'appbar.dart';
@@ -15,7 +15,7 @@ class HomePage extends StatelessWidget {
     final ChatmateController controller = Get.put(ChatmateController());
     return Scaffold(
       appBar: const HomeAppBar(),
-      drawer: const Drawer(),
+      drawer: const HomeDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(

@@ -44,6 +44,9 @@ class NewChatPage extends StatelessWidget {
                 controller.callGeminiAiModal();
                 controller.textController.clear();
               },
+              imagePick: () {
+                controller.pickImage();
+              },
             ),
           ],
         ),

@@ -34,7 +34,9 @@ class ChatItem extends StatelessWidget {
               margin: message.isUser
                   ? const EdgeInsets.only(left: 60)
                   : EdgeInsets.zero,
-              padding: const EdgeInsets.all(10),
+              padding: message.image != null
+                  ? EdgeInsets.zero
+                  : const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
                 border: message.isUser
@@ -48,19 +50,29 @@ class ChatItem extends StatelessWidget {
                         ? Colors.transparent
                         : Colors.transparent,
               ),
-              child: message.isLoading
-                  ? Center(
-                      child: LoadingAnimationWidget.beat(
-                        color: Colors.blue.shade200,
-                        size: 40,
+              child: message.image != null
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: Image.file(
+                        message.image!,
+                        height: 200,
+                        width: 200,
+                        fit: BoxFit.cover,
                       ),
                     )
-                  : Text(
-                      message.text,
-                      style: TextStyle(
-                        color: message.isUser ? Colors.white : Colors.black,
-                      ),
-                    ),
+                  : message.isLoading
+                      ? Center(
+                          child: LoadingAnimationWidget.beat(
+                            color: Colors.blue.shade200,
+                            size: 40,
+                          ),
+                        )
+                      : Text(
+                          message.text ?? '',
+                          style: TextStyle(
+                            color: message.isUser ? Colors.white : Colors.black,
+                          ),
+                        ),
             ),
           ],
         ),

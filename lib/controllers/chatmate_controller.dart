@@ -51,6 +51,16 @@ class ChatmateController extends GetxController {
     );
     if (image != null) {
       selectedImage.value = File(image.path);
+      isClear.value = false;
+
+      //add the image in the message list
+      messages.add(
+        Message(
+          image: selectedImage.value,
+          isUser: true,
+        ),
+      );
+      _scrollDown();
     }
   }
 

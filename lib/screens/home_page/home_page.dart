@@ -44,6 +44,9 @@ class HomePage extends StatelessWidget {
                   controller.textController.clear();
                 }
               },
+              imagePick: () {
+                controller.pickImage();
+              },
             ),
           ],
         ),

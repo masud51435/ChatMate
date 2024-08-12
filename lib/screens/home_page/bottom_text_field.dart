@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+
 class BottomTextField extends StatelessWidget {
   const BottomTextField({
     super.key,
     required this.textEditingController,
     required this.onPressed,
+    required this.imagePick,
   });
 
   final TextEditingController textEditingController;
   final void Function() onPressed;
+  final void Function() imagePick;
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +25,13 @@ class BottomTextField extends StatelessWidget {
                 FocusManager.instance.primaryFocus!.unfocus(),
             decoration: InputDecoration(
               hintText: 'Message ChatMate',
+              suffixIcon: IconButton(
+                onPressed: imagePick,
+                icon: const Icon(
+                  Icons.image_outlined,
+                  size: 30,
+                ),
+              ),
               filled: true,
               fillColor: Colors.grey.shade300,
               border: const OutlineInputBorder(

@@ -1,5 +1,4 @@
 import 'dart:io';
-
 class Message {
   Message({
     required this.text,

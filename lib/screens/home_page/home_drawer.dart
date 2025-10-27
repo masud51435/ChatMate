@@ -70,6 +70,12 @@ class HomeDrawer extends StatelessWidget {
                       controller.loadChatSession(index);
                       Navigator.pop(context); // Close the drawer
                     },
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () {
+                        controller.deleteChatSession(index);
+                      },
+                    ),
                   );
                 },
               );

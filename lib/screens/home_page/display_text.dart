@@ -17,7 +17,7 @@ class DisplayText extends StatelessWidget {
           ),
           const SizedBox(height: 30),
           Text(
-            'Hi, Masud \nHow can i help you,',
+            'Hi, ChatMate \nHow can i help you,',
             style: TextStyle(
               fontSize: 30,
               color: Colors.grey.shade600,

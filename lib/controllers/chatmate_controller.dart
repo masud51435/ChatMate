@@ -127,44 +127,48 @@ class ChatmateController extends GetxController {
   }
 
   Future<String> analyzeImageUsingVisionAPI(File image) async {
-    const String apiUrl =
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$GEMINI_IMAGE_API_KEY";
+    try {
+      String apiUrl =
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$GEMINI_IMAGE_API_KEY";
 
-    //convert the image to base64
-    List<int> imageBytes = File(image.path).readAsBytesSync();
-    final base64String = base64Encode(imageBytes);
+      //convert the image to base64
+      List<int> imageBytes = File(image.path).readAsBytesSync();
+      final base64String = base64Encode(imageBytes);
 
-    //create the request payload
-    final Map<String, dynamic> requestBody = {
-      "contents": [
-        {
-          "parts": [
-            {"text": imageDescriptionController.text},
-            {
-              "inlineData": {
-                "mimeType": "image/jpeg",
-                "data": base64String,
+      //create the request payload
+      final Map<String, dynamic> requestBody = {
+        "contents": [
+          {
+            "parts": [
+              {"text": imageDescriptionController.text},
+              {
+                "inlineData": {
+                  "mimeType": "image/jpeg",
+                  "data": base64String,
+                }
               }
-            }
-          ]
-        }
-      ]
-    };
+            ]
+          }
+        ]
+      };
 
-    //send the request to the google Vision API
-    final response = await http.post(
-      Uri.parse(apiUrl),
-      headers: {"Content-Type": "application/json"},
-      body: json.encode(requestBody),
-    );
+      //send the request to the google Vision API
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {"Content-Type": "application/json"},
+        body: json.encode(requestBody),
+      );
 
-    if (response.statusCode == 200) {
-      final jsonResponse = jsonDecode(response.body);
-      final labels =
-          jsonResponse["candidates"][0]["content"]["parts"][0]["text"];
-      return labels;
-    } else {
-      return 'Failed to analyze image';
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        final labels =
+            jsonResponse["candidates"][0]["content"]["parts"][0]["text"];
+        return labels;
+      } else {
+        return 'Failed to analyze image';
+      }
+    } catch (e) {
+      return e.toString();
     }
   }
 
@@ -265,5 +269,10 @@ class ChatmateController extends GetxController {
     messages.assignAll(session.messages);
     currentSessionIndex.value = index;
     isClear.value = false;
+  }
+
+  //delete a chat session
+  void deleteChatSession(int index) {
+    chatSessions.removeAt(index);
   }
 }

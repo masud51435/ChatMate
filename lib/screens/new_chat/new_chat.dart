@@ -12,8 +12,7 @@ class NewChatPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ChatmateController controller =
-        Get.put(ChatmateController(), tag: UniqueKey().toString());
+    final ChatmateController controller = Get.find<ChatmateController>();
 
     return Scaffold(
       appBar: const HomeAppBar(),

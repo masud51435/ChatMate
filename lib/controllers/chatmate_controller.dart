@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:ui';
 import 'package:http/http.dart' as http;
 import 'package:chatmate/api/api_key.dart';
 import 'package:flutter/material.dart';
@@ -67,52 +66,81 @@ class ChatmateController extends GetxController {
     if (image != null) {
       selectedImage.value = File(image.path);
       isClear.value = false;
-      //get user description for the image
-      final description = await Get.dialog(
-        Form(
+
+      // Show a more professional and user-friendly dialog for image description
+      final description = await Get.defaultDialog<String>(
+        title: "Describe the Image",
+        contentPadding: const EdgeInsets.all(16.0),
+        content: Form(
           key: _formKey,
-          child: AlertDialog(
-            title: const Text('Describe the image'),
-            content: TextFormField(
-              controller: imageDescriptionController,
-              decoration: InputDecoration(
-                hintText: 'What you want to know',
-                filled: true,
-                fillColor: Colors.grey.shade300,
-                border: const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (selectedImage.value != null)
+                Container(
+                  height: 150,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    image: DecorationImage(
+                      image: FileImage(selectedImage.value!),
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                  borderSide: BorderSide.none,
+                  margin: const EdgeInsets.only(bottom: 16),
                 ),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your description';
-                }
-                return null;
-              },
-            ),
-            actions: [
-              OutlinedButton(
-                onPressed: () {
-                  Get.back();
-                },
-                child: const Text('Cancel'),
-              ),
-              OutlinedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    Get.back(
-                      result: imageDescriptionController.text,
-                    );
+              TextFormField(
+                controller: imageDescriptionController,
+                maxLines: null, // Allow multiple lines for description
+                keyboardType: TextInputType.multiline,
+                decoration: InputDecoration(
+                  labelText: 'Your Description',
+                  hintText: 'What do you want to know about this image?',
+                  alignLabelWithHint: true,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey.shade100,
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a description';
                   }
-                  return;
+                  return null;
                 },
-                child: const Text('Ok'),
               ),
             ],
           ),
+        ),
+        confirm: ElevatedButton(
+          onPressed: () {
+            if (_formKey.currentState!.validate()) {
+              Get.back(result: imageDescriptionController.text);
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Get.theme.primaryColor, // Use theme primary color
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          ),
+          child: const Text('Analyze Image'),
+        ),
+        cancel: TextButton(
+          onPressed: () {
+            Get.back();
+          },
+          style: TextButton.styleFrom(
+            foregroundColor: Colors.grey.shade700,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          ),
+          child: const Text('Cancel'),
         ),
       );
 
@@ -308,30 +336,31 @@ class ChatmateController extends GetxController {
   //current session index
   RxInt currentSessionIndex = (-1).obs;
   //start a new chat session
-    void startNewChat() {
-      // If there are messages in the current view, save them to a session
-      if (messages.isNotEmpty) {
-        if (currentSessionIndex.value != -1 && currentSessionIndex.value < chatSessions.length) {
-          // Update existing session
-          final currentSession = chatSessions[currentSessionIndex.value];
-          currentSession.messages = List<Message>.from(messages);
-          currentSession.save();
-        } else {
-          // Create a new session for the current messages
-          final newSession = ChatSessions(
-            title: "Chat ${chatSessions.length + 1}",
-            messages: List<Message>.from(messages),
-            createdAt: DateTime.now(),
-          );
-          chatSessions.add(newSession);
-          _chatSessionsBox.add(newSession);
-        }
+  void startNewChat() {
+    // If there are messages in the current view, save them to a session
+    if (messages.isNotEmpty) {
+      if (currentSessionIndex.value != -1 && currentSessionIndex.value < chatSessions.length) {
+        // Update existing session
+        final currentSession = chatSessions[currentSessionIndex.value];
+        currentSession.messages = List<Message>.from(messages);
+        currentSession.save();
+      } else {
+        // Create a new session for the current messages
+        final newSession = ChatSessions(
+          title: "Chat ${chatSessions.length + 1}",
+          messages: List<Message>.from(messages),
+          createdAt: DateTime.now(),
+        );
+        chatSessions.add(newSession);
+        _chatSessionsBox.add(newSession);
       }
-      // Now, clear the current view to start a truly new, empty chat
-      messages.clear();
-      isClear.value = true;
-      currentSessionIndex.value = -1; // No active session for this new empty chat
     }
+    // Now, clear the current view to start a truly new, empty chat
+    messages.clear();
+    isClear.value = true;
+    currentSessionIndex.value = -1; // No active session for this new empty chat
+  }
+
   //load a selected chat session
   void loadChatSession(int index) {
     final session = chatSessions[index];

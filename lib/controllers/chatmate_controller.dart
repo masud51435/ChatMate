@@ -308,21 +308,30 @@ class ChatmateController extends GetxController {
   //current session index
   RxInt currentSessionIndex = (-1).obs;
   //start a new chat session
-  void startNewChat() {
-    if (messages.isNotEmpty) {
-      final newSession = ChatSessions(
-        title: "Chat ${chatSessions.length + 1}",
-        messages: List<Message>.from(messages),
-        createdAt: DateTime.now(),
-      );
-      chatSessions.add(newSession);
-      _chatSessionsBox.add(newSession); // Save to Hive
+    void startNewChat() {
+      // If there are messages in the current view, save them to a session
+      if (messages.isNotEmpty) {
+        if (currentSessionIndex.value != -1 && currentSessionIndex.value < chatSessions.length) {
+          // Update existing session
+          final currentSession = chatSessions[currentSessionIndex.value];
+          currentSession.messages = List<Message>.from(messages);
+          currentSession.save();
+        } else {
+          // Create a new session for the current messages
+          final newSession = ChatSessions(
+            title: "Chat ${chatSessions.length + 1}",
+            messages: List<Message>.from(messages),
+            createdAt: DateTime.now(),
+          );
+          chatSessions.add(newSession);
+          _chatSessionsBox.add(newSession);
+        }
+      }
+      // Now, clear the current view to start a truly new, empty chat
+      messages.clear();
+      isClear.value = true;
+      currentSessionIndex.value = -1; // No active session for this new empty chat
     }
-    messages.clear();
-    isClear.value = true;
-    currentSessionIndex.value = chatSessions.length;
-  }
-
   //load a selected chat session
   void loadChatSession(int index) {
     final session = chatSessions[index];

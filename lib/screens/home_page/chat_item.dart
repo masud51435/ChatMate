@@ -40,7 +40,7 @@ class ChatItem extends StatelessWidget {
               margin: message.isUser
                   ? const EdgeInsets.only(left: 60)
                   : EdgeInsets.zero,
-              padding: message.image != null
+              padding: message.imageFile != null
                   ? EdgeInsets.zero
                   : const EdgeInsets.all(10),
               decoration: BoxDecoration(
@@ -56,13 +56,13 @@ class ChatItem extends StatelessWidget {
                         ? Colors.transparent
                         : Colors.transparent,
               ),
-              child: message.image != null
+              child: message.imagePath != null
                   ? Column(
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(15),
                           child: Image.file(
-                            message.image!,
+                            message.imageFile!,
                             height: 200,
                             width: 200,
                             fit: BoxFit.cover,

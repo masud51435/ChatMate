@@ -22,8 +22,8 @@ class HomePage extends StatelessWidget {
           children: [
             Obx(
               () => Expanded(
-                child: controller.isClear.value
-                    ? const DisplayText()
+                child: controller.isClear.value && controller.chatSessions.isEmpty
+                    ? const DisplayText() // Show welcome only if no sessions and clear
                     : ListView.builder(
                         itemCount: controller.messages.length,
                         controller: controller.scrollController,
@@ -46,7 +46,6 @@ class HomePage extends StatelessWidget {
               },
               imagePick: () {
                 controller.pickImage();
-
               },
             ),
           ],
@@ -55,3 +54,4 @@ class HomePage extends StatelessWidget {
     );
   }
 }
+

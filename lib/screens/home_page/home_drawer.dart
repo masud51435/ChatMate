@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:chatmate/controllers/chatmate_controller.dart';
 
-import '../new_chat/new_chat.dart';
-
 class HomeDrawer extends StatelessWidget {
   const HomeDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final ChatmateController controller = Get.put(ChatmateController());
+    final ChatmateController controller = Get.find(); // Use Get.find() here
 
     return Drawer(
       child: ListView(
@@ -37,13 +35,9 @@ class HomeDrawer extends StatelessWidget {
               ListTile(
                 onTap: () {
                   controller.startNewChat();
-                  Get.back();
-                  Get.offAll(() => const NewChatPage());
+                  Get.back(); // Close the drawer
                 },
-                leading: Image.asset(
-                  'assets/images/aichat.png',
-                  height: 20,
-                ),
+                leading: const Icon(Icons.add_comment_outlined), // Consistent icon
                 title: const Text(
                   'New Chat',
                   style: TextStyle(
@@ -51,35 +45,74 @@ class HomeDrawer extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
-            ],
-          ),
-          Obx(
-            () {
-              return ListView.builder(
-                itemCount: controller.chatSessions.length,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemBuilder: (context, index) {
-                  final session = controller.chatSessions[index];
-                  return ListTile(
-                    title: Text(session.title),
-                    subtitle: Text(session.createdAt.toString()),
-                    onTap: () {
-                      // Load the selected chat session
-                      controller.loadChatSession(index);
-                      Navigator.pop(context); // Close the drawer
+              const Divider(), // Separator
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Text(
+                  'Previous Chats',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+              ),
+              Obx(
+                () {
+                  return ListView.builder(
+                    itemCount: controller.chatSessions.length,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      final session = controller.chatSessions[index];
+                      final isActive = controller.currentSessionIndex.value == index;
+                      return ListTile(
+                        title: Text(
+                          session.title,
+                          style: TextStyle(
+                            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                            color: isActive ? Get.theme.primaryColor : Colors.black,
+                          ),
+                        ),
+                        subtitle: Text(session.createdAt.toLocal().toString().split('.')[0]), // Nicer date format
+                        leading: Icon(
+                          isActive ? Icons.chat_bubble : Icons.chat_bubble_outline,
+                          color: isActive ? Get.theme.primaryColor : Colors.grey,
+                        ),
+                        onTap: () {
+                          controller.loadChatSession(index);
+                          Get.back(); // Close the drawer
+                        },
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                          onPressed: () {
+                            Get.dialog(
+                              AlertDialog(
+                                title: const Text('Delete Chat?'),
+                                content: Text('Are you sure you want to delete "${session.title}"?'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Get.back(),
+                                    child: const Text('Cancel'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      controller.deleteChatSession(index);
+                                      Get.back(); // Close dialog
+                                    },
+                                    child: const Text('Delete'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      );
                     },
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () {
-                        controller.deleteChatSession(index);
-                      },
-                    ),
                   );
                 },
-              );
-            },
+              ),
+            ],
           ),
         ],
       ),

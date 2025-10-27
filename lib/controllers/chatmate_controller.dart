@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import '../common/message.dart';
 import '../model/chat_session.dart';
@@ -28,6 +29,21 @@ class ChatmateController extends GetxController {
   RxString descriptions = ''.obs;
   RxString visionResponses = ''.obs;
   RxString contentText = ''.obs;
+
+  late Box<ChatSessions> _chatSessionsBox;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _chatSessionsBox = Hive.box<ChatSessions>('chatSessionsBox');
+    _loadChatSessions(); // Load sessions on controller initialization
+  }
+
+  void _loadChatSessions() {
+    chatSessions.assignAll(_chatSessionsBox.values.toList());
+    if (chatSessions.isNotEmpty) {
+    }
+  }
 
 // added scroll for automatically scrolling
   void _scrollDown() {
@@ -104,7 +120,7 @@ class ChatmateController extends GetxController {
       if (description != null) {
         //add the image in the message list
         messages.add(
-          Message(
+          Message.fromFile(
             image: selectedImage.value,
             text: description,
             isUser: true,
@@ -128,7 +144,7 @@ class ChatmateController extends GetxController {
 
   Future<String> analyzeImageUsingVisionAPI(File image) async {
     try {
-      String apiUrl =
+      final String apiUrl =
           "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$GEMINI_IMAGE_API_KEY";
 
       //convert the image to base64
@@ -165,10 +181,24 @@ class ChatmateController extends GetxController {
             jsonResponse["candidates"][0]["content"]["parts"][0]["text"];
         return labels;
       } else {
-        return 'Failed to analyze image';
+        Get.snackbar(
+          'Image Analysis Error',
+          'Failed to analyze image. Status: ${response.statusCode}. Please try again.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+        return 'Error: Failed to analyze image.'; // Return a generic error for message list
       }
     } catch (e) {
-      return e.toString();
+      Get.snackbar(
+        'Image Analysis Error',
+        'An unexpected error occurred during image analysis: ${e.toString()}',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return 'Error: ${e.toString()}';
     }
   }
 
@@ -218,23 +248,54 @@ class ChatmateController extends GetxController {
       messages.removeLast();
 
       //add gemini response to messages list
-      messages.add(
-        Message(
-          text: response.text!,
-          isUser: false,
-        ),
-      );
+      if (response.text == null || response.text!.isEmpty) {
+        Get.snackbar(
+          'Gemini AI Error',
+          'Gemini AI did not return a valid response. Please try rephrasing your query.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.orange,
+          colorText: Colors.white,
+        );
+        messages.add(
+          Message(
+            text: 'No response from AI. Please try again.',
+            isUser: false,
+          ),
+        );
+      } else {
+        messages.add(
+          Message(
+            text: response.text!,
+            isUser: false,
+          ),
+        );
+      }
       _scrollDown();
 
       // Clear the description and vision responses after using them
       descriptions.value = '';
       visionResponses.value = '';
+
+      // After adding messages, update the current session in Hive
+      if (currentSessionIndex.value != -1 &&
+          currentSessionIndex.value < chatSessions.length) {
+        final currentSession = chatSessions[currentSessionIndex.value];
+        currentSession.messages = List<Message>.from(messages);
+        await currentSession.save(); // Save the HiveObject to persist changes
+      }
     } catch (e) {
       isLoading.value = false;
-      messages.removeLast();
+      messages.removeLast(); // Remove loading message
+      Get.snackbar(
+        'Gemini AI Error',
+        'An error occurred while communicating with Gemini AI: ${e.toString()}. Please check your internet connection and API key.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
       messages.add(
         Message(
-          text: e.toString(),
+          text: 'Error: ${e.toString()}',
           isUser: false,
         ),
       );
@@ -250,14 +311,14 @@ class ChatmateController extends GetxController {
   //start a new chat session
   void startNewChat() {
     if (messages.isNotEmpty) {
-      //save the current session before starting a new one
-      chatSessions.add(ChatSessions(
+      final newSession = ChatSessions(
         title: "Chat ${chatSessions.length + 1}",
         messages: List<Message>.from(messages),
         createdAt: DateTime.now(),
-      ));
+      );
+      chatSessions.add(newSession);
+      _chatSessionsBox.add(newSession); // Save to Hive
     }
-    // CLear current message and start fresh
     messages.clear();
     isClear.value = true;
     currentSessionIndex.value = chatSessions.length;
@@ -273,6 +334,18 @@ class ChatmateController extends GetxController {
 
   //delete a chat session
   void deleteChatSession(int index) {
-    chatSessions.removeAt(index);
+    if (index >= 0 && index < chatSessions.length) {
+      final sessionToDelete = chatSessions[index];
+      sessionToDelete.delete(); // Use HiveObject's delete method
+      chatSessions.removeAt(index);
+      // Handle currentSessionIndex if the deleted session was active
+      if (currentSessionIndex.value == index) {
+        currentSessionIndex.value = -1; // No active session
+        messages.clear();
+        isClear.value = true;
+      } else if (currentSessionIndex.value > index) {
+        currentSessionIndex.value--; // Adjust index if needed
+      }
+    }
   }
 }

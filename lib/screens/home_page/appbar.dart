@@ -1,8 +1,6 @@
-import 'package:chatmate/screens/new_chat/new_chat.dart';
+import 'package:chatmate/controllers/chatmate_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import '../../controllers/chatmate_controller.dart';
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   const HomeAppBar({
@@ -19,20 +17,31 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
         icon: Image.asset('assets/images/aichat.png'),
       ),
       centerTitle: true,
-      title: const Text(
-        'ChatMate',
-        style: TextStyle(
-          fontWeight: FontWeight.w600,
-        ),
-      ),
+      title: Obx(() {
+        if (controller.currentSessionIndex.value != -1 &&
+            controller.chatSessions.isNotEmpty) {
+          return Text(
+            controller.chatSessions[controller.currentSessionIndex.value].title,
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+            ),
+          );
+        }
+        return const Text(
+          'ChatMate',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+          ),
+        );
+      }),
       actions: [
         IconButton(
           onPressed: () {
             controller.startNewChat();
-            Get.offAll(() => const NewChatPage());
+            // No need to navigate to NewChatPage anymore
           },
           icon: const Icon(
-            Icons.open_in_new,
+            Icons.add_comment_outlined, // More intuitive icon for new chat
             size: 28,
           ),
         ),
@@ -41,6 +50,5 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  // TODO: implement preferredSize
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }

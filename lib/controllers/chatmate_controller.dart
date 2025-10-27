@@ -41,8 +41,7 @@ class ChatmateController extends GetxController {
 
   void _loadChatSessions() {
     chatSessions.assignAll(_chatSessionsBox.values.toList());
-    if (chatSessions.isNotEmpty) {
-    }
+    if (chatSessions.isNotEmpty) {}
   }
 
 // added scroll for automatically scrolling
@@ -144,8 +143,8 @@ class ChatmateController extends GetxController {
 
   Future<String> analyzeImageUsingVisionAPI(File image) async {
     try {
-      final String apiUrl =
-          "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$GEMINI_IMAGE_API_KEY";
+      final apiUrl =
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$GEMINI_IMAGE_API_KEY";
 
       //convert the image to base64
       List<int> imageBytes = File(image.path).readAsBytesSync();
@@ -235,7 +234,7 @@ class ChatmateController extends GetxController {
 
       // added gemini AI responses
       final model = GenerativeModel(
-        model: 'gemini-1.5-flash',
+        model: 'gemini-2.5-flash',
         apiKey: GEMINI_API_KEY,
       );
       final content = [
